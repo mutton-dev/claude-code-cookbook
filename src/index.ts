@@ -18,6 +18,14 @@ const recipesDir = resolve(__dirname, '..', 'recipes');
 
 type Category = 'skill' | 'hook' | 'subagent' | 'statusline' | 'config';
 
+const VALID_RECIPE_NAME = /^[a-z]+-[a-z0-9-]+$/;
+
+function validateRecipeName(name: string): void {
+  if (!VALID_RECIPE_NAME.test(name)) {
+    throw new Error(`Invalid recipe name: "${name}"`);
+  }
+}
+
 interface Recipe {
   name: string;
   category: Category;
@@ -138,6 +146,10 @@ export function planInstall(recipe: Recipe, projectRoot: string): InstallPlan {
       const src = join(recipe.dir, 'statusline.sh');
       const dest = join(projectRoot, '.claude', 'statusline.sh');
       steps.push({ kind: 'copy', from: src, to: dest });
+      const settingsSrc = join(recipe.dir, 'settings.json');
+      if (existsSync(settingsSrc)) {
+        steps.push({ kind: 'merge-json', from: settingsSrc, to: join(projectRoot, '.claude', 'settings.json') });
+      }
       break;
     }
     case 'config': {
@@ -221,6 +233,10 @@ function cmdInstall(name: string | undefined, projectRoot: string): number {
     }
     return 0;
   }
+  try { validateRecipeName(name); } catch (e) {
+    console.error(`error: ${(e as Error).message}`);
+    return 2;
+  }
   const dir = join(recipesDir, name);
   if (!existsSync(dir)) {
     console.error(`error: recipe not found: ${name}`);
@@ -237,6 +253,10 @@ function cmdInstall(name: string | undefined, projectRoot: string): number {
 function cmdShow(name: string | undefined): number {
   if (!name) {
     console.error('error: show requires a recipe name');
+    return 2;
+  }
+  try { validateRecipeName(name); } catch (e) {
+    console.error(`error: ${(e as Error).message}`);
     return 2;
   }
   const readmePath = join(recipesDir, name, 'README.md');
