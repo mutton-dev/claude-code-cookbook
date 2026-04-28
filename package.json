@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "description": "Curated Claude Code extension recipes (Skills, Hooks, Subagents, Statuslines)",
   "type": "module",
-  "bin": { "mutton-cookbook": "dist/install.js" },
+  "bin": { "mutton-cookbook": "dist/index.js" },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
     "dev": "tsup src/index.ts --format esm --watch",
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "files": ["dist"],
+  "files": ["dist", "recipes"],
   "dependencies": {},
   "devDependencies": {
     "tsup": "^8.0.0",

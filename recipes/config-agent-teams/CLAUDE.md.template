@@ -1,0 +1,75 @@
+# CLAUDE.md
+
+> Guidance for Claude Code when working in this repository. This template is optimized for Agent Teams workflows — multi-agent parallelization, TDD discipline, and cost-aware model selection.
+
+## Project context
+
+<!-- Replace this section with a 2–4 sentence summary of what this project does, who its users are, and what success looks like. -->
+
+This is a <type of project> built with <stack>. Primary users are <audience>. The current focus is <current goal>.
+
+## Workflow: TDD (Red → Green → Refactor → Review)
+
+Default to test-driven development for all non-trivial changes. The cycle:
+
+1. **Red** — write a failing test that captures the desired behavior. Do not write the implementation yet. Run the test and confirm it fails for the right reason.
+2. **Green** — write the smallest possible change that makes the test pass. Ugly code is fine here. Resist scope creep.
+3. **Refactor** — clean up names, extract helpers, remove duplication. Tests must stay green throughout.
+4. **Review** — invoke the `reviewer` subagent (or run `/review`) to audit the change before considering it done.
+
+Skip TDD only for true throwaways (one-off scripts, exploratory spikes that will be deleted). When in doubt, write the test first.
+
+## Agent Teams: parallelization with TeamCreate
+
+For tasks with independent sub-tasks (4+ files to scaffold, multi-feature implementations, broad refactors), spawn a team via `TeamCreate` and divide the work. Each teammate runs in parallel and reports back to the team lead.
+
+**When to use:**
+
+- 4+ independent units of work (one teammate per unit)
+- Mixed tasks where research, implementation, and review can overlap
+- Long-running implementations where the user wants progress in parallel
+
+**When not to use:**
+
+- Single-file changes (overhead is not worth it)
+- Tightly-coupled tasks where teammates would have to wait on each other constantly
+- Simple lookups (use the `Explore` agent or direct `Grep` instead)
+
+## Model selection
+
+| Model | When to use |
+|-------|-------------|
+| **Opus 4.7** | Code review, architecture decisions, hard debugging, security-sensitive code. Slow and expensive — earn it. |
+| **Sonnet 4.6** | Default for implementation, test writing, refactoring. The workhorse. |
+| **Haiku 4.5** | Research, classification, summarization, large-scale read-only sweeps, statusline scripts. Fast and cheap. |
+
+Within a team: lead on Sonnet, reviewers on Opus, researchers and parallelizable workers on Haiku.
+
+## Task tracking
+
+Use `TaskCreate` to break non-trivial work into discrete steps. Mark each task `in_progress` when starting and `completed` the moment it is done — do not batch updates. Set up `blockedBy` dependencies when one task must finish before another can start.
+
+## Code style
+
+<!-- Replace with your repo's actual conventions. Common pieces below. -->
+
+- **Comments**: write none by default. Only comment when the *why* is non-obvious.
+- **Tests**: located alongside source (`foo.ts` → `foo.test.ts`) unless the repo uses a `tests/` or `__tests__/` convention.
+- **Formatting**: enforced by <prettier/biome/ruff/gofmt>. Do not hand-format; let the tool do it.
+- **Linting**: <eslint/biome/ruff>. Treat warnings as errors in CI.
+
+## Commit conventions
+
+Use Conventional Commits: `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `test:`. Keep subjects under 70 characters. Body explains the *why*, not the *what*.
+
+Never use `--no-verify`. If a hook fails, fix the underlying issue.
+
+## Security
+
+- Never commit secrets. The `hook-security-scan` recipe blocks accidental commits of API keys, passwords, and tokens.
+- Validate at trust boundaries (user input, external APIs). Trust internal code.
+- Migrations: any schema change must be reviewable as a separate commit and must be safe under concurrent writes.
+
+## When stuck
+
+If you've spent more than ~10 minutes on a single problem without progress, stop and ask. Do not retry the same approach hoping for a different result. Surfacing a blocker quickly is more valuable than soldiering on.
