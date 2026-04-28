@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ -d .git ]; then git add -A && (git diff --cached --quiet || git commit -m \"chore: auto-commit by Claude Code [$(date +%H:%M:%S)]\" --no-verify=false); fi"
+            "command": "if [ -d .git ]; then git add -A && (git diff --cached --quiet || git commit -m \"chore: auto-commit by Claude Code [$(date +%H:%M:%S)]\"); fi"
           }
         ]
       }
