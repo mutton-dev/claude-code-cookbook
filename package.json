@@ -1,0 +1,22 @@
+{
+  "name": "mutton-cookbook",
+  "version": "0.1.0",
+  "description": "Curated Claude Code extension recipes (Skills, Hooks, Subagents, Statuslines)",
+  "type": "module",
+  "bin": { "mutton-cookbook": "dist/install.js" },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "files": ["dist"],
+  "dependencies": {},
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "engines": { "node": ">=20" }
+}
