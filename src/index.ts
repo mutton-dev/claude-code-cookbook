@@ -20,7 +20,7 @@ type Category = 'skill' | 'hook' | 'subagent' | 'statusline' | 'config';
 
 const VALID_RECIPE_NAME = /^[a-z]+-[a-z0-9-]+$/;
 
-function validateRecipeName(name: string): void {
+export function validateRecipeName(name: string): void {
   if (!VALID_RECIPE_NAME.test(name)) {
     throw new Error(`Invalid recipe name: "${name}"`);
   }
@@ -94,7 +94,8 @@ function ensureDir(p: string) {
 
 export function deepMergeJson(base: unknown, overlay: unknown): unknown {
   if (Array.isArray(base) && Array.isArray(overlay)) {
-    return [...base, ...overlay];
+    const seen = new Set(base.map((item) => JSON.stringify(item)));
+    return [...base, ...overlay.filter((item) => !seen.has(JSON.stringify(item)))];
   }
   if (
     base &&
